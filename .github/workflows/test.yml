@@ -56,6 +56,10 @@ jobs:
           desc: 'this is debian-package2'
 
       - name: Upload Debian package as artifact
+        run: |
+          ls ./
+          ls -hl
+          echo '${{ steps.build-deb.outputs.file_name }}'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build-deb.outputs.file_name }}
