@@ -32,12 +32,6 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           release_name: Release ${{ env.TAG_NAME }}
 
-      # - name: Build the Debian package
-      #   run: |
-      #     dpkg-deb --build ${{ env.PACKAGE_NAME }}
-      #     mv ${{ env.PACKAGE_NAME  }}.deb ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
-      #   id: build_step
-
       - name: Build Debian package with build-deb-action
         id: build_deb
         run: |
@@ -49,15 +43,10 @@ jobs:
           package: ${{ env.PACKAGE_NAME }}
           package_root: .debpkg
           maintainer: Hamza Gad
-          version: ${{ github.ref }} # refs/tags/v*.*.*
-          # version: ${{ env.TAG_NAME }}
+          version: ${{ github.ref }}
           arch: 'all'
           depends: 'libc6 (>= 2.2.1), git'
           desc: 'this is debian-package2'
-
-      # - name: Debug Outputs
-      #   run: |
-      #     echo "Build Deb Outputs: ${{ toJson(steps.build_deb.outputs) }}"
 
       - name: Upload Debian package as artifact
         run: |
@@ -67,45 +56,4 @@ jobs:
         with:
           name: ${{ env.artifact_filename }}
           path: ${{ env.artifact_filename }}
-          # name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
-          # path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
           retention-days: 90
-
-      # - name: Upload artifact and release
-      #   uses: nanoufo/action-upload-artifacts-and-release-assets@main
-      #   with:
-      #     path: |
-      #       x.txt
-      #       y.txt
-      #     upload-release-files: true
-      #     release-upload-url: <UPLOAD URL HERE>
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Upload Debian package as artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.PACKAGE_NAME }}.deb
-      #     path: ${{ env.PACKAGE_NAME }}.deb
-      #     retention-days: 90
-
-      # - name: Upload Debian package to assits
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.PACKAGE_NAME }}.deb
-      #     path: ${{ env.PACKAGE_NAME }}.deb
-      #     retention-days: 90
-
-      # - name: Get the version
-      #   id: get_version
-      #   run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
-      # - name: Upload Release Asset
-      #   uses: shogo82148/actions-upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ github.event.release.upload_url }}
-      #     asset_path: ./${{ env.PACKAGE_NAME }}.deb
-      #     asset_name: ${{ env.PACKAGE_NAME }}-${{ env.VERSION }}.deb
-      #     asset_content_type: application/vnd.debian.binary-package
