@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build-deb.outputs.file_name }}
-          path: ${{ steps.build-deb.outputs.file_name }}
+          path: ./${{ steps.build-deb.outputs.file_name }}
           # name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
           # path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
           retention-days: 90
