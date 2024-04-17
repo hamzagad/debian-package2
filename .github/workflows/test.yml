@@ -51,7 +51,7 @@ jobs:
           maintainer: Hamza Gad
           version: ${{ github.ref }} # refs/tags/v*.*.*
           # version: ${{ env.TAG_NAME }}
-          arch: 'any'
+          arch: 'all'
           depends: 'libc6 (>= 2.2.1), git'
           desc: 'this is debian-package2'
 
