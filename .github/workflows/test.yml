@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir -p .debpkg/DEBIAN
           mv {rules,prerm,preinst,postrm,postinst,control,copyright,changelog} .debpkg/DEBIAN/
-          find . -mindepth 1 -maxdepth 1 ! -name push.sh -exec mv {} .debpkg/ \; 
+          find . -mindepth 1 -maxdepth 1 ! -name push.sh ! -name '.*' -exec mv {} .debpkg/ \;
       - uses: jiro4989/build-deb-action@v3
         with:
           package: ${{ env.PACKAGE_NAME }}
