@@ -55,13 +55,23 @@ jobs:
           depends: 'libc6 (>= 2.2.1), git'
           desc: 'this is debian-package2'
 
-      - name: Debug Outputs
+      # - name: Debug Outputs
+      #   run: |
+      #     echo "Build Deb Outputs: ${{ toJson(steps.build_deb.outputs) }}"
+
+      - name: Upload Debian package as artifact
         run: |
-          echo "Build Deb Outputs: ${{ toJson(steps.build_deb.outputs) }}"
+          echo "name=${{ steps.build_deb.outputs.file_name }}" >> $GITHUB_ENV
+          echo "path=${{ steps.build_deb.outputs.file_name }}" >> $GITHUB_ENV
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.name }}
+          path: ${{ env.path }}
 
       # - name: Upload Debian package as artifact
       #   run: |
-      #     echo '${{ steps.create_release.outputs.upload_url }}' > upload_url.txt
+      #     ls -l | grep ${{ env.PACKAGE_NAME }} | awk '{print $NF}'
+      #     echo "name=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       #     echo '${{ steps.build_deb.outputs.file_name }}' > file_name.txt
       #     ls -hl
       # - uses: actions/upload-artifact@v4
