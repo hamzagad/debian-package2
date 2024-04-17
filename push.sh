@@ -6,7 +6,7 @@ filename=version
 current_version=$(<"$filename")
 
 # Calculate new version
-new_version=$(echo "$current_version + 0.1" | bc)
+new_version=$(echo $current_version | awk -F. -v OFS=. '{$NF = $NF + 1; print}')
 
 # echo $new_version
 

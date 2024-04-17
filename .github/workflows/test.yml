@@ -32,17 +32,36 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           release_name: Release ${{ env.TAG_NAME }}
 
-      - name: Build the Debian package
+      # - name: Build the Debian package
+      #   run: |
+      #     dpkg-deb --build ${{ env.PACKAGE_NAME }}
+      #     mv ${{ env.PACKAGE_NAME  }}.deb ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+      #   id: build_step
+
+      - name: Build Debian package with build-deb-action
+        id: build-deb
         run: |
-          dpkg-deb --build ${{ env.PACKAGE_NAME }}
-          mv ${{ env.PACKAGE_NAME  }}.deb ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
-        id: build_step
+          mkdir -p .debpkg/DEBIAN
+          mv {rules,prerm,preinst,postrm,postinst,control,copyright,changelog} .debpkg/DEBIAN/
+          find . -mindepth 1 -maxdepth 1 ! -name push.sh -exec mv {} .debpkg/ \; 
+      - uses: jiro4989/build-deb-action@v3
+        with:
+          package: ${{ env.PACKAGE_NAME }}
+          package_root: .debpkg
+          maintainer: Hamza Gad
+          version: ${{ github.ref }} # refs/tags/v*.*.*
+          # version: ${{ env.TAG_NAME }}
+          arch: 'any'
+          depends: 'libc6 (>= 2.2.1), git'
+          desc: 'this is debian-package2'
 
       - name: Upload Debian package as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
-          path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+          name: ${{ steps.build-deb.outputs.file_name }}
+          path: ${{ steps.build-deb.outputs.file_name }}
+          # name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+          # path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
           retention-days: 90
 
       # - name: Upload artifact and release
