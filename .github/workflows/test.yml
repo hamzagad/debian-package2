@@ -60,7 +60,7 @@ jobs:
           ls ./
           ls -hl
           echo '${{ steps.build-deb.outputs.file_name }}'
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build-deb.outputs.file_name }}
           path: ./${{ steps.build-deb.outputs.file_name }}
