@@ -61,26 +61,15 @@ jobs:
 
       - name: Upload Debian package as artifact
         run: |
-          echo "name=${{ steps.build_deb.outputs.file_name }}" >> $GITHUB_ENV
-          echo "path=${{ steps.build_deb.outputs.file_name }}" >> $GITHUB_ENV
+          filename=$(ls -l | grep ${{ env.PACKAGE_NAME }} | awk '{print $NF}')
+          echo "artifact_filename=$filename" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.name }}
-          path: ${{ env.path }}
-
-      # - name: Upload Debian package as artifact
-      #   run: |
-      #     ls -l | grep ${{ env.PACKAGE_NAME }} | awk '{print $NF}'
-      #     echo "name=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-      #     echo '${{ steps.build_deb.outputs.file_name }}' > file_name.txt
-      #     ls -hl
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: file_name.txt
-      #     path: upload_url.txt
-      #     # name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
-      #     # path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
-      #     retention-days: 90
+          name: ${{ env.artifact_filename }}
+          path: ${{ env.artifact_filename }}
+          # name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+          # path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+          retention-days: 90
 
       # - name: Upload artifact and release
       #   uses: nanoufo/action-upload-artifacts-and-release-assets@main
