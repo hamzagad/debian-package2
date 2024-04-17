@@ -39,7 +39,7 @@ jobs:
       #   id: build_step
 
       - name: Build Debian package with build-deb-action
-        id: build-deb
+        id: build_deb
         run: |
           mkdir -p .debpkg/DEBIAN
           mv {rules,prerm,preinst,postrm,postinst,control,copyright,changelog} .debpkg/DEBIAN/
@@ -57,13 +57,13 @@ jobs:
 
       - name: Upload Debian package as artifact
         run: |
-          ls ./
+          echo '${{ steps.create_release.outputs.upload_url }}' > upload_url.txt
+          echo '${{ steps.build_deb.outputs.file_name }}' > file_name.txt
           ls -hl
-          echo '${{ steps.build-deb.outputs.file_name }}'
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.build-deb.outputs.file_name }}
-          path: ./${{ steps.build-deb.outputs.file_name }}
+          name: file_name.txt
+          path: upload_url.txt
           # name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
           # path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
           retention-days: 90
