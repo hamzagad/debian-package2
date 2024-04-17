@@ -1,0 +1,85 @@
+name: use deb-package-build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*' 
+
+permissions:
+  contents: write
+
+jobs: 
+  build:
+    env:
+      PACKAGE_NAME: debian-package
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set tag name
+        id: set_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: comnoco/create-release-action@v2.0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: Release ${{ env.TAG_NAME }}
+
+      - name: Build the Debian package
+        run: |
+          dpkg-deb --build ${{ env.PACKAGE_NAME }}
+          mv ${{ env.PACKAGE_NAME  }}.deb ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+        id: build_step
+
+      - name: Upload Debian package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+          path: ${{ env.PACKAGE_NAME }}-${{ env.TAG_NAME }}.deb
+          retention-days: 90
+
+      # - name: Upload artifact and release
+      #   uses: nanoufo/action-upload-artifacts-and-release-assets@main
+      #   with:
+      #     path: |
+      #       x.txt
+      #       y.txt
+      #     upload-release-files: true
+      #     release-upload-url: <UPLOAD URL HERE>
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Upload Debian package as artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ env.PACKAGE_NAME }}.deb
+      #     path: ${{ env.PACKAGE_NAME }}.deb
+      #     retention-days: 90
+
+      # - name: Upload Debian package to assits
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ env.PACKAGE_NAME }}.deb
+      #     path: ${{ env.PACKAGE_NAME }}.deb
+      #     retention-days: 90
+
+      # - name: Get the version
+      #   id: get_version
+      #   run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      # - name: Upload Release Asset
+      #   uses: shogo82148/actions-upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ github.event.release.upload_url }}
+      #     asset_path: ./${{ env.PACKAGE_NAME }}.deb
+      #     asset_name: ${{ env.PACKAGE_NAME }}-${{ env.VERSION }}.deb
+      #     asset_content_type: application/vnd.debian.binary-package
